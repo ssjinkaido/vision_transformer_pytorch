@@ -49,7 +49,6 @@ class AttentionModel(nn.Module):
 
         key_transpose = keys.transpose(-2, -1)  # (num_samples, num_heads, head_dim, n_patches + 1)
         score = (queries @ key_transpose) * self.scale
-        score = score/ (self.head_dim **(1/2))
         attention = score.softmax(dim=-1) # shape(n_samples, n_heads, n_patches + 1, n_patches +1)
         attention = self.attention_drop(attention)
         weighted_average = attention @ values # shape(32,12,577,64)
