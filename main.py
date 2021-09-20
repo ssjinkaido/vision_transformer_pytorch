@@ -24,10 +24,13 @@ def seed_everything(seed):
     torch.backends.cudnn.benchmark = True
     
 def main():
+    scaler = torch.cuda.amp.GradScaler(enabled=True)
+    model = vision_transformer.to(device)
+    optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min',factor=0.5, patience=3, threshold=0.0001, threshold_mode='abs', min_lr=1e-8,eps=1e-08)
     for i in tqdm(range(EPOCHS)):
-        model = vision_transformer.to(device)
-        train(model, i, LEARNING_RATE, train_loader, device)
-        validate(model, val_loader, device)
+        train(model, i, train_loader, optimizer, scaler, device)
+        validate(model, val_loader, scheduler, device)
 
 if __name__ == '__main__':
     seed_everything(42)
